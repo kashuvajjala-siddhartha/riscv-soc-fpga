@@ -1,9 +1,0 @@
-debImport "-vcd" "axi_interconnect_wrap_4x2_tb.vcd"
-verdiWindowResize -win $_Verdi_1 "340" "92" "900" "700"
-verdiSetActWin -dock widgetDock_MTB_SOURCE_TAB_1
-verdiWindowResize -win $_Verdi_1 "340" "92" "900" "700"
-verdiSetActWin -dock widgetDock_<Message>
-nsMsgSelect -range {0 0-15} {0-0}
-nsMsgSelect -range {0 15-15}
-nsMsgSelect -range {0 0-99} {0-0}
-debExit
