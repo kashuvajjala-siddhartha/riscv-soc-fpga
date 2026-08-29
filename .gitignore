@@ -13,3 +13,4 @@ verdiLog/
 *.shm/
 *.trn
 *.dsn
+run/
