@@ -1,0 +1,15 @@
+novas.rc
+novas.conf
+
+verdiLog/
+
+*.vcd
+*.vpd
+*.fsdb
+*.wlf
+*.log
+*.dump
+*.wave
+*.shm/
+*.trn
+*.dsn
