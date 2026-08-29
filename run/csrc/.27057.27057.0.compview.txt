@@ -1,0 +1,7 @@
+Command exited with non-zero status 255
+{"vcs1":{"timestamp_begin":1787999297.483161216, "rt":1.83, "ut":0.05, "st":0.01}}
+{"SNPS_VCS_INTERNAL_ROOT_START_TIME": 1787999297.322648665}
+{"VCS_COMP_START_TIME": 1787999297.322648665}
+{"VCS_COMP_END_TIME": 1787999299.337954682}
+{"VCS_USER_OPTIONS": "-full64 -sverilog rtl/interconnect/axi_interconnect_wrap_4x2.v rtl/interconnect/axi_interconnect.v rtl/interconnect/arbiter.v rtl/interconnect/priority_encoder.v tb/axi_interconnect_wrap_4x2_tb.sv -o simv"}
+{"vcs1": {"peak_mem": 357088}}

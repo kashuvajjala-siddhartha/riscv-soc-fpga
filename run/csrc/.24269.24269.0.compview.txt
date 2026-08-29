@@ -1,0 +1,9 @@
+{"vcs1":{"timestamp_begin":1787998326.657757936, "rt":1.73, "ut":0.20, "st":0.03}}
+{"vcselab":{"timestamp_begin":1787998328.417039004, "rt":1.29, "ut":0.09, "st":0.04}}
+{"link":{"timestamp_begin":1787998329.727125520, "rt":0.22, "ut":0.05, "st":0.01}}
+{"SNPS_VCS_INTERNAL_ROOT_START_TIME": 1787998326.499013051}
+{"VCS_COMP_START_TIME": 1787998326.499013051}
+{"VCS_COMP_END_TIME": 1787998329.973229738}
+{"VCS_USER_OPTIONS": "-full64 -sverilog rtl/interconnect/axi_interconnect_wrap_4x2.v rtl/interconnect/axi_interconnect.v rtl/interconnect/arbiter.v rtl/interconnect/priority_encoder.v tb/axi_interconnect_wrap_4x2_tb.sv -o simv"}
+{"vcs1": {"peak_mem": 377276}}
+{"vcselab": {"peak_mem": 251800}}
