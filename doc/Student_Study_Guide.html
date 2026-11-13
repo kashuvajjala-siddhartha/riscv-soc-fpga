@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>WaveGuard SoC — Student Study Guide & Viva Prep</title>
+<style>
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.6;
+        color: #1f2937;
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 0 20px;
+        background-color: #f9fafb;
+    }
+    .container {
+        background: #ffffff;
+        padding: 40px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    h1 {
+        color: #1e3a8a;
+        border-bottom: 2px solid #3b82f6;
+        padding-bottom: 12px;
+        font-size: 26px;
+    }
+    h2 {
+        color: #1d4ed8;
+        margin-top: 32px;
+        border-bottom: 1px solid #e5e7eb;
+        padding-bottom: 8px;
+        font-size: 20px;
+    }
+    h3 {
+        color: #2563eb;
+        margin-top: 24px;
+        font-size: 16px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        font-size: 14px;
+    }
+    th, td {
+        border: 1px solid #d1d5db;
+        padding: 10px 14px;
+        text-align: left;
+    }
+    th {
+        background-color: #eff6ff;
+        color: #1e40af;
+        font-weight: 600;
+    }
+    tr:nth-child(even) {
+        background-color: #f9fafb;
+    }
+    code {
+        background-color: #f3f4f6;
+        color: #b91c1c;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: "Courier New", Courier, monospace;
+        font-size: 13px;
+    }
+    blockquote {
+        border-left: 4px solid #3b82f6;
+        background-color: #f0fdf4;
+        margin: 16px 0;
+        padding: 12px 20px;
+        color: #166534;
+        font-style: italic;
+        border-radius: 0 4px 4px 0;
+    }
+    li {
+        margin-bottom: 6px;
+    }
+    @media print {
+        body {
+            background: #ffffff;
+            margin: 0;
+            padding: 0;
+            max-width: 100%;
+        }
+        .container {
+            box-shadow: none;
+            padding: 15px;
+        }
+        h1, h2, h3 {
+            page-break-after: avoid;
+        }
+        table, blockquote {
+            page-break-inside: avoid;
+        }
+    }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>WaveGuard SoC — Student Study Guide & Viva Preparation Notes</h1>
+<p><strong>Student ID</strong>: 1602-23-735-045</p>
+<p><strong>Topic</strong>: VeeR-EL2 RISC-V System-on-Chip (SoC) Design & Verification</p>
+<p>*(Written in simple, plain English to help you understand every part and ace your presentation/viva)*</p>
+<p></p>
+<p>---</p>
+<p></p>
+<h2>1. The Big Picture: What Did We Actually Do?</h2>
+<p></p>
+<p>Think of a computer or a smartphone chip. Inside, there is:</p>
+<p>1. A <strong>Brain (CPU)</strong>: Western Digital <strong>VeeR-EL2</strong> (a 32-bit RISC-V processor).</p>
+<p>2. A <strong>Highway (Bus Interconnect)</strong>: A 64-bit <strong>AXI4 bus</strong> that lets data move between the brain, memory, and devices.</p>
+<p>3. A <strong>Notebook (Memory)</strong>: 32 KB Instruction Memory (IMEM) where code lives, and 32 KB Data Memory (DMEM) where variables and results live.</p>
+<p>4. <strong>Helpers (Peripherals / IPs)</strong>:</p>
+<li>3 Standard helpers: <strong>UART</strong> (talks serial), <strong>Standard Timer</strong> (ticks like a clock), <strong>GPIO</strong> (switches pins on/off).</li>
+<li>4 Custom helpers: <strong>DMA</strong> (super-fast data mover), <strong>CRC-32</strong> (error detector), <strong>Enhanced Timer</strong> (stopwatch & watchdog supervisor), and <strong>Seven-Segment Controller</strong> (displays PASS/FAIL on screen/LEDs).</li>
+<p></p>
+<h3>What is the Main Story / Demo of Our Chip?</h3>
+<p>1. The CPU boots up from Instruction Memory and executes your mentor's C code: <code>add(10, 20)</code>. The answer <code>30</code> is calculated and saved in memory.</p>
+<p>2. External data (the text <code>"123456789"</code>) comes in through the <strong>UART</strong> serial wire.</p>
+<p>3. The <strong>DMA Controller</strong> catches this data, packs it into 64-bit words, and writes it directly into Data Memory without bothering the CPU.</p>
+<p>4. The <strong>CRC-32 Engine</strong> reads this data from memory and computes an IEEE 802.3 checksum (<code>0xCBF43926</code>).</p>
+<p>5. Because the checksum is correct, the CRC IP sends a direct 1-bit hardware signal to the <strong>Seven-Segment Display</strong>, lighting up the <strong>PASS</strong> LED!</p>
+<p>6. Meanwhile, the <strong>Enhanced Timer</strong> acted like a stopwatch, measuring that DMA took 1,451 clock cycles and CRC took 20 cycles.</p>
+<p></p>
+<p>---</p>
+<p></p>
+<h2>2. Walkthrough of Every Single IP (Block-by-Block)</h2>
+<p></p>
+<h3>IP 1: VeeR-EL2 RISC-V Processor Core</h3>
+<li><strong>What is it?</strong> The main central processing unit (CPU).</li>
+<li><strong>What does it do?</strong> Fetches instructions from memory, decodes them, executes mathematical calculations, and handles interrupts.</li>
+<li><strong>Key specs</strong>:</li>
+<li>Instruction set: <strong>RV32IMC</strong> (32-bit base integer, Multiplication/Division hardware, Compressed instructions).</li>
+<li>Bus interface: 64-bit AXI4 master.</li>
+<p></p>
+<p>---</p>
+<p></p>
+<h3>IP 2: Standard Timer vs. Enhanced Timer (Crucial Viva Topic!)</h3>
+<p></p>
+<table>
+<tr><th>Feature</th><th>Standard Timer (<code>0x8000_5000</code>)</th><th>Enhanced Timer (<code>0x8000_2000</code>)</th></tr>
+<tr><td><strong>What is it like?</strong></td><td>An ordinary alarm clock</td><td>A smart stopwatch + safety supervisor</td></tr>
+<tr><td><strong>How does it work?</strong></td><td>Counts down from a number. When it hits zero, it fires an interrupt and reloads.</td><td>Physically wired to DMA & CRC status lines (<code>dma_active</code>, <code>crc_busy</code>).</td></tr>
+<tr><td><strong>Does it know about other IPs?</strong></td><td>No. It is completely isolated.</td><td><strong>Yes.</strong> It monitors when accelerators start and finish.</td></tr>
+<tr><td><strong>Execution Profiling</strong></td><td>None.</td><td><strong>Measures exact hardware runtime</strong> (e.g. DMA took 1451 cycles, CRC took 20 cycles).</td></tr>
+<tr><td><strong>Safety / Watchdog</strong></td><td>None.</td><td><strong>Has hardware watchdogs</strong>. If DMA hangs or freezes, it fires an alarm interrupt.</td></tr>
+<tr><td><strong>Purpose</strong></td><td>Generates periodic operating system ticks (e.g. 1 ms tick).</td><td>System performance benchmarking and hang detection.</td></tr>
+</table>
+<p></p>
+<p>---</p>
+<p></p>
+<h3>IP 3: DMA (Direct Memory Access) Controller (<code>0x8000_1000</code>)</h3>
+<li><strong>What problem does it solve?</strong> Normally, if 1,000 bytes come from UART, the CPU must wake up 1,000 times, execute a read instruction, and execute a write instruction. This wastes CPU time!</li>
+<li><strong>What does DMA do?</strong> DMA is an autonomous memory mover. It takes the 8-bit stream from UART, packs 8 bytes into a 64-bit word inside an internal FIFO, and writes them directly into SRAM over the AXI4 bus. The CPU does zero work during data movement!</li>
+<li><strong>Key characteristics</strong>:</li>
+<li>Master on 64-bit AXI4 bus (AW, W, B channels).</li>
+<li>Slave on 32-bit AXI-Lite bus (CPU configures source address, destination address, and transfer size).</li>
+<li>Fires <code>irq_dma</code> when transfer finishes.</li>
+<p></p>
+<p>---</p>
+<p></p>
+<h3>IP 4: CRC-32 Accelerator Engine (<code>0x8000_0000</code>)</h3>
+<li><strong>What is it?</strong> Cyclic Redundancy Check error detection engine.</li>
+<li><strong>Why is it needed?</strong> When data is sent over wireless, Ethernet, or stored on disks, bits can flip (corrupt). CRC computes a unique 32-bit fingerprint (checksum) using polynomial math ($0xEDB88320$).</li>
+<li><strong>How does it work in hardware?</strong></li>
+<li>It has a 64-bit AXI4 Read Master. It reads data directly from memory.</li>
+<li>Passes data byte-by-byte through a fast combinational XOR matrix.</li>
+<li>Automatically compares the computed CRC with the expected CRC.</li>
+<li>Asserts hardware flags: <code>crc_pass</code> or <code>crc_fail</code>, and triggers <code>irq_crc</code>.</li>
+<p></p>
+<p>---</p>
+<p></p>
+<h3>IP 5: UART Controller (<code>0x8000_4000</code>)</h3>
+<li><strong>What does it do?</strong> Universal Asynchronous Receiver-Transmitter. Converts parallel bytes inside the chip into a single-wire serial stream (<code>tx</code>), and receives serial data from the outside world (<code>rx</code>).</li>
+<li><strong>Key characteristics</strong>:</li>
+<li>Independent TX and RX paths.</li>
+<li>Configurable baud rate divisor.</li>
+<li>Built-in <strong>Loopback Mode</strong>: Software can connect TX directly to RX internally to test serial logic without plugging in any physical cables.</li>
+<li>Direct 8-bit streaming connection to the DMA controller.</li>
+<p></p>
+<p>---</p>
+<p></p>
+<h3>IP 6: 32-bit GPIO Controller (<code>0x8000_6000</code>)</h3>
+<li><strong>What is it?</strong> General Purpose Input/Output.</li>
+<li><strong>What does it do?</strong> Connects the chip to external physical pins (buttons, switches, external LEDs, sensors).</li>
+<li><strong>Key characteristics</strong>:</li>
+<li>32 individual bidirectional pins.</li>
+<li>Direction Register (<code>DIR</code>): <code>1</code> = Output pin, <code>0</code> = Input pin.</li>
+<li><code>DATA_OUT</code>: Values CPU drives onto the pins.</li>
+<li><code>DATA_IN</code>: Values CPU reads from external world.</li>
+<li><strong>Edge Interrupts</strong>: Can generate <code>irq_gpio</code> on rising edges (e.g. when an external user presses a pushbutton).</li>
+<p></p>
+<p>---</p>
+<p></p>
+<h3>IP 7: Seven-Segment Display Controller (<code>0x8000_3000</code>)</h3>
+<li><strong>What is it?</strong> Hardware decoder that drives 7-segment digital display cathodes/anodes and LEDs.</li>
+<li><strong>How does it work?</strong></li>
+<li>Has two control modes:</li>
+<p>1. <strong>Direct Hardware Override</strong>: The CRC IP's <code>crc_pass</code> / <code>crc_fail</code> wires connect directly into this controller. If CRC passes, the hardware immediately displays <code>PASS</code> without CPU code!</p>
+<p>2. <strong>Software CSR Mode</strong>: The CPU can write to a register to manually display patterns.</p>
+<p></p>
+<p>---</p>
+<p></p>
+<h2>3. Bus Architecture: AXI4 vs. AXI4-Lite</h2>
+<p></p>
+<p>Why do we have two bus protocols in our SoC?</p>
+<li><strong>64-bit AXI4 (High-Speed Data Highway)</strong>:</li>
+<li>Connects CPU, Memory, DMA Write Master, and CRC Read Master.</li>
+<li>Supports burst transfers (reading/writing multiple 64-bit words in a single transaction).</li>
+<li>Used where high bandwidth is needed.</li>
+<li><strong>32-bit AXI4-Lite (Control Street)</strong>:</li>
+<li>Simplified, lightweight version of AXI.</li>
+<li>No bursts (one 32-bit transfer at a time).</li>
+<li>Perfect for reading and writing peripheral Control and Status Registers (CSRs) without wasting silicon area.</li>
+<li><strong>AXI4-to-AXI-Lite Bridge</strong>:</li>
+<li>The translator between the two. When the CPU wants to configure a peripheral at <code>0x8000_xxxx</code>, the bridge converts the 64-bit CPU request into a clean 32-bit AXI-Lite transaction.</li>
+<p></p>
+<p>---</p>
+<p></p>
+<h2>4. Verification: What is a VIP and Why Did We Need It?</h2>
+<p></p>
+<li><strong>VIP = Verification IP</strong>: A reusable verification module (BFM / Driver / Monitor) built to test bus protocols without writing manual bit-toggling code.</li>
+<li><strong>Unit Testing vs System Integration Testing</strong>:</li>
+<li><strong>Unit Testing (7 individual testbenches)</strong>: Tests each IP alone. Proves that UART can receive bytes, DMA can pack bytes, and CRC can calculate checksums.</li>
+<li><strong>System Integration Testing (<code>waveguard_soc_tb.sv</code>)</strong>: Tests everything connected together. Proves that memory mapping works, interrupts reach the CPU, and data flows from UART $\rightarrow$ DMA $\rightarrow$ Memory $\rightarrow$ CRC $\rightarrow$ 7-Segment without deadlocks.</li>
+<p></p>
+<p>---</p>
+<p></p>
+<h2>5. Top 8 Viva / Interview Questions & Model Answers</h2>
+<p></p>
+<h3>Q1: What is the reset vector and memory layout of your SoC?</h3>
+<blockquote>*"The reset vector is <code>0x0000_0000</code> in Instruction Memory. Instruction Memory occupies <code>0x0000_0000</code> to <code>0x0000_7FFF</code> (32 KB). Data Memory occupies <code>0x0000_8000</code> to <code>0x0000_FFFF</code> (32 KB). Peripherals are mapped starting from <code>0x8000_0000</code> with 4 KB spaces allocated for CRC, DMA, Timers, 7-Segment, UART, and GPIO."*</blockquote>
+<p></p>
+<h3>Q2: How did you execute the mentor's C code on the hardware?</h3>
+<blockquote>*"We compiled the bare-metal C program <code>int add(int a, int b) { return a + b; }</code> and startup assembly using RISC-V opcodes into a 64-bit <code>$readmemh</code> format (<code>program.hex</code>). The Instruction Memory preloads this file at boot. The CPU executes <code>add(10, 20)</code> and writes the result <code>30</code> (<code>0x1E</code>) into the Data Memory mailbox at <code>0x0000_8100</code>, which our testbench automatically verifies."*</blockquote>
+<p></p>
+<h3>Q3: Why is DMA considered a Master and UART a Slave?</h3>
+<blockquote>*"UART is a slave on the bus because it only responds when the CPU reads or writes its registers. DMA is an AXI4 Master because it actively initiates write transactions to Memory across the bus on its own without needing the CPU to drive address or data wires."*</blockquote>
+<p></p>
+<h3>Q4: How does CRC-32 differ from a simple parity check or checksum?</h3>
+<blockquote>*"A simple parity check only detects single-bit errors, and simple checksums fail to catch byte-reordering. CRC-32 treats data as a polynomial bit stream and divides it using Galois field arithmetic with the standard IEEE 802.3 polynomial ($0xEDB88320$). It detects all single-bit, double-bit, odd-numbered, and burst errors up to 32 bits with 99.999999% probability."*</blockquote>
+<p></p>
+<h3>Q5: How did you test UART if you don't have physical hardware connected?</h3>
+<blockquote>*"Our UART IP features an internal Loopback mode where the transmitter output is internally routed into the receiver input. Additionally, our testbench includes a UART Serial VIP that simulates an external device transmitting serial bits at the programmed baud rate."*</blockquote>
+<p></p>
+<h3>Q6: What happens if an external sensor sends data too fast for DMA?</h3>
+<blockquote>*"The DMA IP incorporates an asynchronous internal FIFO with flow control (<code>m_axis_tready</code>). If the FIFO approaches full, backpressure is exerted to throttle data ingestion until pending AXI write beats complete."*</blockquote>
+<p></p>
+<h3>Q7: What are the two operating modes of the 7-Segment Controller?</h3>
+<blockquote>*"1. Hardware Override Mode: Directly triggered by the CRC accelerator's <code>crc_pass</code> and <code>crc_fail</code> status pins.</blockquote>
+<p>2. Software Mode: Configured through AXI-Lite registers by the CPU."*</p>
+<p></p>
+<h3>Q8: What tools did you use to simulate and verify the design on Windows?</h3>
+<blockquote>*"We used Icarus Verilog (<code>iverilog 12.0</code>) for SystemVerilog IEEE-1800 compilation, VVP for simulation execution, Python 3 for firmware HEX generation, and GTKWave for cycle-accurate waveform viewing."*</blockquote>
+<p></p>
+</div>
+</body>
+</html>
