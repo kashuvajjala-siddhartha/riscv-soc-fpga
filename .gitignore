@@ -1,0 +1,18 @@
+# Simulation and compilation artifacts
+*.vvp
+*.vcd
+*.fsdb
+*.log
+*.key
+simv*
+csrc/
+verdiLog/
+novas.*
+*.sdb
+*.daidir/
+__pycache__/
+*.pyc
+
+# Temporary scratch files
+*.tmp
+*.bak
