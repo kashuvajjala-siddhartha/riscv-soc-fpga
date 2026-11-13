@@ -283,8 +283,15 @@ module waveguard_soc_tb;
     integer err_count = 0;
 
     initial begin
+`ifdef DUMP_FSDB
+        $fsdbDumpfile("dump.fsdb");
+        $fsdbDumpvars("+all");
+        $fsdbDumpSVA();
+        $fsdbDumpMDA();
+`else
         $dumpfile("waveguard_soc_tb.vcd");
         $dumpvars(0, waveguard_soc_tb);
+`endif
 
         uart_rx = 1'b1;
         gpio_in = 32'h0;
