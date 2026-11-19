@@ -35,8 +35,13 @@
 #define TIMER_COUNTER   (*(volatile unsigned int *)(TIMER_BASE + 0x0C))
 #define TIMER_MATCH     (*(volatile unsigned int *)(TIMER_BASE + 0x10))
 
-// 7-Segment Register Offsets
-#define SEVENSEG_STATUS (*volatile unsigned int *)(SEVENSEG_BASE + 0x00))
+// 7-Segment Register Offsets & Modes
+#define SEVENSEG_STATUS (*(volatile unsigned int *)(SEVENSEG_BASE + 0x00))
+#define SEVENSEG_DATA   (*(volatile unsigned int *)(SEVENSEG_BASE + 0x04))
+
+#define SEVENSEG_IDLE   0x00
+#define SEVENSEG_PASS   0x01
+#define SEVENSEG_FAIL   0x02
 
 // =============================================================================
 // Mentor's required function
@@ -55,6 +60,13 @@ int main()
     // Store result in memory location 0x00000100 for verification
     volatile int *result_mem = (volatile int *)0x00000100;
     *result_mem = sum;
+
+    // Display PASS on 7-segment display if addition succeeded, else FAIL
+    if (sum == 30) {
+        SEVENSEG_STATUS = SEVENSEG_PASS;
+    } else {
+        SEVENSEG_STATUS = SEVENSEG_FAIL;
+    }
 
     return sum;
 }

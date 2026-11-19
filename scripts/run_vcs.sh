@@ -8,6 +8,14 @@ echo "==============================================================="
 echo "   COMPILING WAVEGUARD SOC WITH SYNOPSYS VCS                   "
 echo "==============================================================="
 
+# Auto-configure Synopsys paths if not already exported
+if ! command -v vcs &> /dev/null; then
+    export SNPSLMD_LICENSE_FILE="27021@14.139.1.126"
+    export VERDI_HOME="/home/student/snps_tools_target/verdi/U-2023.03-SP1"
+    export VCS_HOME="/home/student/snps_tools_target/vcs/U-2023.03"
+    export PATH="$VCS_HOME/bin:$VERDI_HOME/bin:$PATH"
+fi
+
 # Generate firmware hex if python3 is available
 if command -v python3 &> /dev/null; then
     python3 scripts/generate_hex.py firmware
